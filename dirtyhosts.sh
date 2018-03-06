@@ -2,24 +2,28 @@
 set -e
 set -x
 
-hostsfile="$HOME/hosts.local"
-auto_www=true
+HOSTSFILE="hosts.local"
+AUTO_WWW=true
+
+echo_status() {
+  echo $(grep "^#dirty_status:" "$HOSTSFILE"|cut -d" " -f2)
+}
 
 usage() {
-  echo "Usage: $(basename $0) add|del DOMAIN"
+  echo "Usage: $(basename $0) OPTION DOMAIN"
 }
 
-dirty_status() {
-  dirty_status_line=$(grep '^#dirty_status' $hostsfile)
-  local status=$(echo $dirty_status_line | cut -d" " -f2)
-  echo $status
-}
+#dirty_status() {
+#  dirty_status_line=$(grep '^#dirty_status' $HOSTSFILE)
+#  local status=$(echo $dirty_status_line | cut -d" " -f2)
+#  echo $status
+#}
 
 _add() {
   _host="$1"
   for d in $_host
   do
-    if ! echo "127.0.0.1 "$d" #dirty" >> "$hostsfile"
+    if ! echo "127.0.0.1 "$d" #dirty" >> "$HOSTSFILE"
     then
       exit 1
     fi
@@ -30,7 +34,7 @@ _del() {
   _host="$1"
   for d in $_host
   do
-    if ! sed -i '' "/$d\ #dirty/d" "$hostsfile"
+    if ! sed -i '' "/$d\ #dirty/d" "$HOSTSFILE"
     then
       exit 1
     fi
@@ -38,7 +42,7 @@ _del() {
 }
 
 _toggle2() {
-  dirty_status_line=$(grep '^#dirty_status' $hostsfile)
+  dirty_status_line=$(grep '^#dirty_status' $HOSTSFILE)
   local status=$(echo $dirty_status_line | cut -d" " -f2)
   if echo "$status"| grep -q 'active$'
   then
@@ -55,8 +59,19 @@ _toggle() {
     then
       echo $line
     fi
-  done < $hostsfile
+  done < $HOSTSFILE
 }
+
+STATUS=$(echo_status)
+
+[[ $STATUS = on || $STATUS = off ]] || { echo "Status error"; exit 1; }
+
+[[ $# = 0 ]] && { echo "Status: $STATUS"; exit 0; }
+
+[[ $# = 2 ]] && { ACTION="$1"; DOMAIN="$2"; } || { usage; exit 1; }
+
+exit 4
+
 
 _toggle2
 exit 4
@@ -79,7 +94,7 @@ fi
 
 ACTION="$1"
 
-if [[ $auto_www = true ]]
+if [[ $AUTO_WWW = true ]]
 then
   DOMAIN="$2 www.$2"
 else

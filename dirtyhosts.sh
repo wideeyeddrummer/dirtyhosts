@@ -5,10 +5,6 @@ set -x
 HOSTSFILE="hosts.local"
 AUTO_WWW=true
 
-echo_status() {
-  echo $(grep "^#dirty_status:" "$HOSTSFILE"|cut -d" " -f2)
-}
-
 usage() {
   echo "Usage: $(basename $0) OPTION DOMAIN"
 }
@@ -62,7 +58,9 @@ _toggle() {
   done < $HOSTSFILE
 }
 
-STATUS=$(echo_status)
+
+
+STATUS=$(grep "^#dirty_status:" "$HOSTSFILE"|cut -d" " -f2)
 
 [[ $STATUS = on || $STATUS = off ]] || { echo "Status error"; exit 1; }
 

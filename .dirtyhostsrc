@@ -1,0 +1,3 @@
+HOSTSFILE="hosts.local"
+AUTO_WWW=true
+LINUX_SED=false

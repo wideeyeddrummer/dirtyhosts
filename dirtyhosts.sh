@@ -4,9 +4,11 @@ set -x
 
 HOSTSFILE="hosts.local"
 AUTO_WWW=true
+LINUX_SED=true
 
 usage() {
   echo "Usage: $(basename $0) OPTION DOMAIN"
+  exit 0
 }
 
 #dirty_status() {
@@ -30,9 +32,17 @@ _del() {
   _host="$1"
   for d in $_host
   do
-    if ! sed -i '' "/$d\ #dirty/d" "$HOSTSFILE"
+    if [[ $LINUX_SED = true ]]
     then
-      exit 1
+      if ! sed -i "/$d\ #dirty/d" "$HOSTSFILE"
+      then
+        exit 1
+      fi
+    else
+      if ! sed -i '' "/$d\ #dirty/d" "$HOSTSFILE"
+      then
+        exit 1
+      fi
     fi
   done
 }
@@ -68,14 +78,6 @@ STATUS=$(grep "^#dirty_status:" "$HOSTSFILE"|cut -d" " -f2)
 
 [[ $# = 2 ]] && { ACTION="$1"; DOMAIN="$2"; } || { usage; exit 1; }
 
-exit 4
-
-
-_toggle2
-exit 4
-
-_toggle
-exit 4
 
 if [[ $(id -u) = 0 ]]
 then
@@ -83,14 +85,7 @@ then
   exit 1
 fi
 
-#we want 2 parameters
-if [[ ! $# = 2 ]]
-then
-  usage
-  exit 1
-fi
 
-ACTION="$1"
 
 if [[ $AUTO_WWW = true ]]
 then

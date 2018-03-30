@@ -2,9 +2,7 @@
 set -e
 set -x
 
-HOSTSFILE="hosts.local"
-AUTO_WWW=true
-LINUX_SED=true
+. .dirtyhostsrc
 
 usage() {
   echo "Usage: $(basename $0) OPTION DOMAIN"

@@ -2,7 +2,7 @@
 set -e
 set -x
 
-. .dirtyhostsrc
+[[ -f $HOME/.dirtyhostsrc ]] && . $HOME/.dirtyhostsrc
 
 usage() {
   echo "Usage: $(basename $0) OPTION DOMAIN"
